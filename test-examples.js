@@ -1,4 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
+//Delete the underscore at the end of the functions and variables.
+// underscore (_) is used to make elements ignored/"unusable"
+// e.g. function Exam_()  should be: function Exam()
+
 var test_symbol_ = "coss-eth";
 var test_side_ = "BUY";
 var test_price_ = 0.00001;
@@ -24,11 +28,9 @@ function test_final_() {
 //////////////////////////////////////////////////////////////////////////
 /*
 Examples to spreadsheet
-Copy the function in your script file and delete the underscore at the end
-of the function name other wise spreadsheet does not detect.
-e.g. function Example_()  should be: function Example()
+- Copy the function in your script file.
 
-Also in the example below, I'm using Coss as a IdenfierName.
+- Also in the example below, I'm using Coss as a IdenfierName.
 */
 
 function examp_accountBalance_(SecP){
