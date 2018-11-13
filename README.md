@@ -108,6 +108,9 @@ email: gmd2791@gmail.com
 - If you have any recommendation, feel free to email me directly.
 - For comment about the code please add the line you're referring to.
 - Your support is greatly appreciated.
+		
 		BTC:	1G2bT7cqqi1hVRn2HQ2yackqHy5aZFLboG
+		
 		LTC:	MM6F58UueZxN83hr3XvAMG4GbtHXp8qjDu
+		
 		ETH and ERC tokens:	0x81Be7262a55B98c5C503aB3d60A64102cC4E4B27
