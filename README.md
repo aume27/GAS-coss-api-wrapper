@@ -2,9 +2,13 @@
 # G.A.S. coss api wapper
 ---
 This library was made using [Google App Script(GAS)](https://developers.google.com/apps-script/) and the [coss.io api service](https://api.coss.io/v1/spec#api-Order-orderDetailsPost).
+
 It allows to communicate with Coss exchange platform from Google services like google websites,
+
 docs and sheets and provide the core functions to retrieve and send request.
+
 It does not format the response for a specified service, this requires you to
+
 build a custom function in addition. There is examples available here: [test-examples.js](test-examples.js).
 
 ---
@@ -58,7 +62,9 @@ as follows: `Test.libraryMethod()`
 
 ##### As a Standalone Script copy owned by you
 Simply make a copy of the script project and rename it.
+
 https://script.google.com/d/1cWkV_FH6b3O3qwRBR1mrOVyIep3v3ZNEiMnZjObuJo610KqZzGSWlIYD/edit?usp=sharing
+
 *(Using this method, your copy will not be touched by changes made on the original library.
 It will be necessary to make a new copy of it if you want to update to the latest version.)*
 
@@ -70,13 +76,18 @@ After you have it setup, you will need to provide your credentials
 ```
 ##### As a library
 In the script that is linked to this library set the variables mentioned above with your **appropriate credentials as *strings***.
+
 To do so you will need to access the variable using your IdenfierName and then assign it a new value. e.g:
+
 `IdenfierName.apiKey = "YOUR_PUBLIC_API_KEY";`
+
 `IdenfierName.apiSecret = "YOUR_API_SECRET_KEY";`
+
 *(Note that if you create variables or functions that have the same name then your library idenfierName, it will overwrite it.)*
 
 ##### Script copy owned by you
 In the [api-wapper.js file](api-wapper.js) file, replace the `placeHolders` shown above by your **appropriate credentials as *strings***
+
 and you're ready to go!
 
 ---
