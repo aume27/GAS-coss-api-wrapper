@@ -10,19 +10,19 @@ var test_qty_ = 251;
 
 
 function test_final_() {
-  // Uncomment to test one of the request
-//  accountDetails();
-//  accountBalance(['eth']); // 'ETH' // ['eth', 'coss', 'eos', 'lsk', 'btc']
-//  placeOrder(test_symbol, test_side, test_price, test_qty);
-//  cancelOrder('YOUR_ORDER_ID', 'coss-eth');
-//  orderDetails("YOUR_ORDER_ID");
-//  openOrders( 10, 'coss-eth');
-//  completedOrders( 10, 'coss-eth');
-//  allOrders( 10, 'coss-eth', accountID);
-//  exchangeInfo();
-//  mktDepth('coss-eth');
-//  mktPrice('coss-eth');
-//  mktSummaries('coss-eth');
+  // Uncomment and set parameters to test one of the request.
+//  Logger.log( accountDetails() );
+//  Logger.log( accountBalance(['eth']) ); // 'ETH' // ['eth', 'coss', 'eos', 'lsk', 'btc']
+//  Logger.log( placeOrder(test_symbol, test_side, test_price, test_qty) );
+//  Logger.log( cancelOrder('YOUR_ORDER_ID', 'coss-eth') );
+//  Logger.log( orderDetails("YOUR_ORDER_ID") );
+//  Logger.log( openOrders( 10, 'coss-eth') );
+//  Logger.log( completedOrders( 10, 'coss-eth') );
+//  Logger.log( allOrders( 10, 'coss-eth', accountID) );
+//  Logger.log( exchangeInfo() );
+//  Logger.log( mktDepth('coss-eth') );
+//  Logger.log( mktPrice('coss-eth') );
+//  Logger.log( mktSummaries('coss-eth') );
 }
 
 //////////////////////////////////////////////////////////////////////////
