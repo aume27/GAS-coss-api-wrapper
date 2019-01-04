@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 //Delete the underscore at the end of the functions and variables.
 // underscore (_) is used to make elements ignored/"unusable"
-// e.g. function Exam_()  should be: function Exam()
+// o.g. function Exam_()  should be: function Exam()
 
 var test_symbol_ = "coss-eth";
 var test_side_ = "BUY";
@@ -38,8 +38,8 @@ function examp_accountBalance_(SecP){
   var res = Coss.accountBalance(arguments);
 
   var arr = [];
-  res.forEach(function(e){
-    arr.push([e.total, e.address, e.available, e.currency_code]);
+  res.forEach(function(o){
+    arr.push([ o.total, o.address, o.available, o.currency_code]);
   });
   return arr;
   /*
@@ -54,13 +54,13 @@ function examp_openOrders_(Limit, Symbol){
   Logger.log(res);
 
   var arr = [];
-  res.list.forEach(function(e){
+  res.list.forEach(function(o){
     if (e == null) {
       arr.push(['null']);
     } else {
-      arr.push([e.order_size, e.order_price, e.executed, e.type, e.total, e.account_id, e.avg, e.order_symbol, e.stop_price, e.createTime, e.order_side, e.order_id, e.open]);
+      arr.push([ o.order_size, o.order_price, o.executed, o.type, o.total, o.account_id, o.avg, o.order_symbol, o.stop_price, o.createTime, o.order_side, o.order_id, o.open]);
     }
-    Logger.log(e);
+    Logger.log(o);
   });
   return arr;
   /*
@@ -75,13 +75,13 @@ function examp_allOrders_(Limit, Symbol, AccID){
   Logger.log(res);
 
   var arr = [];
-  res.forEach(function(e){
+  res.forEach(function(o){
     if (e == null) {
       arr.push(['null']);
     } else {
-      arr.push([e.order_size, e.order_price, e.executed, e.type, e.total, e.account_id, e.avg, e.order_symbol, e.stop_price, e.createTime, e.order_side, e.order_id, e.open]);
+      arr.push([ o.order_size, o.order_price, o.executed, o.type, o.total, o.account_id, o.avg, o.order_symbol, o.stop_price, o.createTime, o.order_side, o.order_id, o.open]);
     }
-    Logger.log(e);
+    Logger.log(o);
   });
   return arr;
   /*

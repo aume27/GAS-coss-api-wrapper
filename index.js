@@ -26,37 +26,53 @@ Credits:
 @customfunction
 */
 
-var apiKey = 'YOUR_PUBLIC_API_KEY';
-var apiSecret = 'YOUR_API_SECRET_KEY';
-var accountID = 'YOUR_ACCOUNT_ID'; //IdenfierName.accountDetails().account_id; //Shortcut to get account_id. IdenfierName is only usefull as library user
+var apiKey = 'YOUR_PUBLIC_API_KEY',
+    apiSecret = 'YOUR_API_SECRET_KEY',
+    accountID = 'YOUR_ACCOUNT_ID'; //IdenfierName.accountDetails().account_id; //Shortcut to get account_id. IdenfierName is only usefull as library user
 
 var uriMap = {
-  end_point: "https://api.coss.io/v1",
+  end_point: {
+    eng: "https://engine.coss.io/api/v1", //Price feed
+    ex: "https://exchange.coss.io/api",
+    tra: "https://trade.coss.io/c/api/v1", //Account control and trading
+  },
   order: {
     //POST method URIs (private)
     add: "/order/add",
     details: "/order/details",
+    trade: "/order/trade-detail",
     list: {
       open: "/order/list/open",
       completed: "/order/list/completed",
-      all: "/order/list/all" },
+      all: "/order/list/all"
+    },
     //DELETE method URIs (private)
-    cancel: "/order/cancel" },
+    cancel: "/order/cancel"
+  },
   //GET method URIs account functions (private)
   account: {
     balance: "/account/balances",
-    details: "/account/details" },
+    details: "/account/details"
+  },
+  //Public request URIs
   ex_info: "/exchange-info",
+  server: {
+    ping: "/ping",
+    time: "/time",
+  },
   market: {
     depth: "/dp",
     price: "/market-price",
     summ: "/getmarketsummaries"
-  }};
+  }
+};
 
 
 /**
  * Return the signed header, require get_payloadSig().
+ *
  * @param {string} sign
+ *
  * @return {Object} header
  */
 function get_signedHeader(sign) {
@@ -72,8 +88,10 @@ function get_signedHeader(sign) {
 
 /**
  * Generate signature using googleAppScript Utilities.
+ *
  * @param {object} payload Query_params of the request.
  * @param {string} secret Api secret provided by exchange.
+ *
  * @return {string} signature
  */
 function get_payloadSig(payload, secret) {
@@ -90,9 +108,11 @@ function get_payloadSig(payload, secret) {
 
 /**
  * Process private request
+ *
  * @param {string} method
  * @param {string} url
  * @param {object} query_params
+ *
  * @return {Object} response
  */
 function privReq(method, url, query_params) {
@@ -118,9 +138,12 @@ function privReq(method, url, query_params) {
   }
 }
 
+
 /**
  * Process public request
+ *
  * @param {string} url
+ *
  * return {Object} response
  */
 function pubReq(url) {
@@ -152,14 +175,15 @@ function pubReq(url) {
 /**
  * Retreive your account informations
  * Does not require any params.
+ *
  * @return {Object} The responce object.
  * @customfunction
  */
 function accountDetails() {
 
   var now = Math.floor(new Date().getTime()).toString();
-  var query_params = "recvWindow=5000&timestamp="+ now;
-  var url = uriMap.end_point + uriMap.account.details+ "?"+ query_params;
+  var query_params = "recvWindow=5000&timestamp=" + now;
+  var url = uriMap.end_point.tra + uriMap.account.details + "?" + query_params;
 
   var response = privReq('GET', url, query_params);
 //  Logger.log(response);
@@ -169,7 +193,9 @@ function accountDetails() {
 
 /**
  * Get your wallet information addresses, totals, available ,and reserved.
+ *
  * @param {string} secP Optional. Can be equal to "ign0" (show only balances >0), a string or an array.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -177,8 +203,8 @@ function accountBalance(secP) {
   // secP can be = ign0( show only total balances > 0), a precise coin(e.g: btc), an array of coins
 
   var now = Math.floor(new Date().getTime()).toString();
-  var query_params = "recvWindow=5000&timestamp="+ now;
-  var url = uriMap.end_point + uriMap.account.balance+ "?"+ query_params;
+  var query_params = "recvWindow=5000&timestamp=" + now;
+  var url = uriMap.end_point.tra + uriMap.account.balance + "?" + query_params;
 
   var response = privReq('GET', url, query_params);
   if (!secP) { //raw Response
@@ -204,51 +230,68 @@ function accountBalance(secP) {
         }}};
 //    Logger.log(array);
     return array;
-  }
+  };
 }
 
 
 /**
  * Place order of different types.
+ *       Gen rules:
+ *       Symbol: must be in uppercase and using underscore.
+ *       Numbers: must contain proper number of decimals e.g.  '123.00000'.
+ *
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
- * @param {string} Side A valid order side, e.g. 'BUY' or 'SELL'
  * @param {number} Price The price of your order.
- * @param {number} Qty The quantity,must contain 8 decimals e.g.  '123.00000000'.
+ * @param {string} Side A valid order side. ENUM(BUY, SELL)
+ * @param {number} Size The quantity.
+ * @param {string} Type The type of order. ENUM(market, limit)
+ * @param {number} Stop Order stop price.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
-function placeOrder(Symbol, Side, Price, Qty) {
+function placeOrder(Symbol, Price, Side, Size, Type, Stop) {
   //Type isnt yet supported. Always leave to 'limit' for the moment. * @param {string} Type The order type e.g. 'limit', 'market'.
 
   if (!Symbol) {
-    return "placeOrder(), You must supply a valid trading pair Symbol, e.g. 'eth-btc'!";
+    return "placeOrder(), You must supply a valid trading pair Symbol, e.g. 'ETH_BTC'!";
+
   } else if (Symbol && typeof(Symbol) !== 'string') {
-    return "placeOrder(), You must supply a valid trading pair Symbol as a string, e.g. 'eth-btc'!";
-  } else if (!Side || Side && Side.toLowerCase() !== 'buy' && Side.toLowerCase() !== 'sell') {
+    return "placeOrder(), You must supply a valid trading pair Symbol as a string, e.g. 'ETH_BTC'!";
+  } else if (Symbol && Symbol.indexof('_') == -1) {
+    return "placeOrder(), You must supply a valid pair Symbol using underscore, e.g. 'ETH_BTC'!";
+
+  } else if (!Price) {
+    return "placeOrder(), You must supply a valid order_price, e.g. Amount: '123.00000000'!";
+  } else if (typeof(Price) !== 'number') {
+    return "placeOrder(), You must supply a valid order_price as a number, e.g. Amount: '123.00000000'!";
+
+  } else if (!Side || (Side && Side.toUpperCase() !== 'BUY' && Side.toUpperCase() !== 'SELL')) {
     return "placeOrder(), You must supply a valid Side, e.g. 'BUY' or 'SELL'!";
-  } else if (!Qty) {
-    return "placeOrder(), You must supply a valid Amount, e.g. Amount: '123.00000000'!";
-  } else if (typeof(Qty) !== 'number') {
-    return "placeOrder(), You must supply a valid Amount as a number, e.g. Amount: '123.00000000'!";
-  }
-  if(!Type) Type = 'limit'; //to delete when new order types are available.
-  if (!Type) {
-    return "placeOrder(), You must supply a valid order Type, e.g. 'limit'!";
-  } else if (Type && typeof(Type) !== 'string') {
+
+  } else if (!Size) {
+    return "placeOrder(), You must supply a valid order_size, e.g. Amount: '123.00000000'!";
+  } else if (typeof(Size) !== 'number') {
+    return "placeOrder(), You must supply a valid order_size as a number, e.g. Amount: '123.00000000'!";
+
+  } else if (!Type || (Type && typeof(Type) !== 'string')) {
     return "placeOrder(), You must supply a valid order Type as a string, e.g. 'limit'!";
-  }
+  };
 
   var now = Math.floor(new Date().getTime()).toString();
   var query_params = {
-    order_symbol: Symbol,
-    order_side: Side,
+    order_symbol: Symbol.toUpperCase(),
     order_price: Price.toString(),
-    order_size: Qty.toString(),
+    order_side: Side.toUpperCase(),
+    order_size: Size.toString(),
     type: Type,
     timestamp: now,
     recvWindow: 5000
   };
-  var url = uriMap.end_point + uriMap.order.add;
+  //Stop_price if applied
+  if (Stop) { query_params.stop_price = Stop };
+
+  var url = uriMap.end_point.tra + uriMap.order.add;
 
   var response = privReq('POST', url, query_params);
 //  Logger.log(response);
@@ -258,8 +301,10 @@ function placeOrder(Symbol, Side, Price, Qty) {
 
 /**
  * Remove the specified order.
+ *
  * @param {string} ID A valid order id, e.g. '0oi9u87y-2345-271d-71f2-1q2w3e4r5te7'.
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -282,7 +327,7 @@ function cancelOrder(ID, Symbol) {
     timestamp: now,
     recvWindow: 5000
   }
-  var url = uriMap.end_point + uriMap.order.cancel;
+  var url = uriMap.end_point.tra + uriMap.order.cancel;
 
   var response = privReq('DELETE', url, query_params);
 //  Logger.log(response);
@@ -290,10 +335,11 @@ function cancelOrder(ID, Symbol) {
 }
 
 
-
 /**
  * Get details about a specified order.
+ *
  * @param {string} ID A valid order id, e.g. '0oi9u87y-2345-271d-71f2-1q2w3e4r5te7'.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -312,7 +358,37 @@ function orderDetails(ID) {
     recvWindow: 5000
   }
 
-  var url = uriMap.end_point + uriMap.order.details;
+  var url = uriMap.end_point.tra + uriMap.order.details;
+  var response = privReq('POST', url, query_params);
+//  Logger.log(response);
+  return response;
+}
+
+
+/**
+ * Get trade details about a specified order.
+ *
+ * @param {string} ID A valid order id, e.g. '0oi9u87y-2345-271d-71f2-1q2w3e4r5te7'.
+ *
+ * @return {Object} The response object.
+ * @customfunction
+ */
+function orderTradeDetails(ID) {
+
+  if (!ID) {
+    return "orderTradeDetails(), You must supply a valid order_ID , e.g. '0oi9u87y-2345-271d-71f2-1q2w3e4r5te7'!";
+  } else if (ID && typeof(ID) !== 'string') {
+    return "orderTradeDetails(), You must supply a valid order_ID as a string, e.g. '0oi9u87y-2345-271d-71f2-1q2w3e4r5te7'!";
+  }
+
+  var now = Math.floor(new Date().getTime());//.toString();
+  var query_params = {
+    order_id: ID,
+    timestamp: now,
+    recvWindow: 5000
+  }
+
+  var url = uriMap.end_point.tra + uriMap.order.trade;
   var response = privReq('POST', url, query_params);
 //  Logger.log(response);
   return response;
@@ -321,8 +397,10 @@ function orderDetails(ID) {
 
 /**
  * Get a list of your open orders.
+ *
  * @param {number} Limit The number of order to list.
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -347,7 +425,7 @@ function openOrders(Limit, Symbol) {
     recvWindow: 5000
   }
 
-  var url = uriMap.end_point + uriMap.order.list.open;
+  var url = uriMap.end_point.tra + uriMap.order.list.open;
   var response = privReq('POST', url, query_params);
 //  Logger.log(response);
   return response;
@@ -356,8 +434,10 @@ function openOrders(Limit, Symbol) {
 
 /**
  * Get a list of your completed orders.
+ *
  * @param {number} Limit The number of order to list.
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -381,7 +461,7 @@ function completedOrders(Limit, Symbol) {
     timestamp: now,
     recvWindow: 5000
   }
-  var url = uriMap.end_point+ uriMap.order.list.completed;
+  var url = uriMap.end_point.tra + uriMap.order.list.completed;
   var response = privReq('POST', url, query_params);
 //    Logger.log(response);
   return response;
@@ -390,9 +470,11 @@ function completedOrders(Limit, Symbol) {
 
 /**
  * Get a list of your orders.
+ *
  * @param {number} Limit The number of order to list.
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
  * @param {string} AccID A valid account ID.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
@@ -421,7 +503,7 @@ function allOrders(Limit, Symbol, AccID) {
     timestamp: now,
     recvWindow: 5000
   }
-  var url = uriMap.end_point+ uriMap.order.list.all;
+  var url = uriMap.end_point.tra + uriMap.order.list.all;
   var response = privReq('POST', url, query_params);
 //  Logger.log(response);
   return response;
@@ -434,11 +516,12 @@ function allOrders(Limit, Symbol, AccID) {
 
 /**
  * Get exchange informations and status.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
 function exchangeInfo() {
-  var url = uriMap.end_point+ uriMap.ex_info;
+  var url = uriMap.end_point.tra + uriMap.ex_info;
 
   var response = pubReq(url);
 //  Logger.log(response);
@@ -447,20 +530,14 @@ function exchangeInfo() {
 
 
 /**
- * Get market depth for a pair.
- * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ * Ping server to see if available
+ *
  * @return {Object} The response object.
  * @customfunction
  */
-function marketDepth(symbol) {
+function serverPing() {
+  var url = uriMap.end_point.tra + uriMap.server.ping;
 
-  if (!symbol) {
-    return "mktSummaries(), You must supply a valid trading pair Symbol, e.g. 'eth-btc'!";
-  } else if (symbol && typeof(symbol) !== 'string') {
-    return "mktSummaries(), You must supply a valid trading pair Symbol as a string, e.g. 'eth-btc'!";
-  }
-
-  var url = uriMap.end_point+ uriMap.market.depth+ '?symbol='+ symbol;
   var response = pubReq(url);
 //  Logger.log(response);
   return response;
@@ -468,20 +545,14 @@ function marketDepth(symbol) {
 
 
 /**
- * Get market price for a pair.
- * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ * Server time request
+ *
  * @return {Object} The response object.
  * @customfunction
  */
-function marketPrice(symbol) {
+function serverTime() {
+  var url = uriMap.end_point.tra + uriMap.server.time;
 
-  if (!symbol) {
-    return "mktSummaries(), You must supply a valid trading pair Symbol, e.g. 'eth-btc'!";
-  } else if (symbol && typeof(symbol) !== 'string') {
-    return "mktSummaries(), You must supply a valid trading pair Symbol as a string, e.g. 'eth-btc'!";
-  }
-
-  var url = uriMap.end_point+ uriMap.market.price+ '?symbol='+ symbol;
   var response = pubReq(url);
 //  Logger.log(response);
   return response;
@@ -490,20 +561,61 @@ function marketPrice(symbol) {
 
 /**
  * Get market summaries for a pair.
+ *
  * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
  * @return {Object} The response object.
  * @customfunction
  */
-function marketSummaries(symbol) {
+function marketSummaries() {
 
-  if (!symbol) {
-    return "mktSummaries(), You must supply a valid trading pair Symbol, e.g. 'eth-btc'!";
-  } else if (symbol && typeof(symbol) !== 'string') {
-    return "mktSummaries(), You must supply a valid trading pair Symbol as a string, e.g. 'eth-btc'!";
-  }
-
-  var url = uriMap.end_point+ uriMap.market.summ+ '?symbol='+ symbol;
+  var url = uriMap.end_point.ex + uriMap.market.summ;
   var response = pubReq(url);
 //  Logger.log(response);
+  return response;
+}
+
+
+/**
+ * Get market depth for a pair.
+ *
+ * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
+ * @return {Object} The response object.
+ * @customfunction
+ */
+function marketDepth(symbol) {
+
+  if (!symbol) {
+    return "marketDepth(), You must supply a valid trading pair Symbol, e.g. 'eth-btc'!";
+  } else if (symbol && typeof(symbol) !== 'string') {
+    return "marketDepth(), You must supply a valid trading pair Symbol as a string, e.g. 'eth-btc'!";
+  }
+
+  var url = uriMap.end_point.eng + uriMap.market.depth+ '?symbol='+ symbol;
+  var response = pubReq(url);
+// Logger.log(response);
+  return response;
+}
+
+
+/**
+ * Get market price for a pair.
+ *
+ * @param {string} Symbol A valid trading pair symbol, e.g. 'eth-btc'.
+ *
+ * @return {Object} The response object.
+ * @customfunction
+ */
+function marketPrice(symbol) {
+
+  if (symbol && typeof(symbol) !== 'string') {
+    return "marketPrice(), You must supply a valid trading pair Symbol as a string, e.g. 'ETH_BTC'!";
+  }
+
+  var url = uriMap.end_point.tra + uriMap.market.price;
+  url = symbol == undefined ? url : url + '?symbol=' + symbol;
+
+  var response = pubReq(url);
   return response;
 }
